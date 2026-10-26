@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KenPro BOQ – สถานีชาร์จ EV</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --ink: #1c2430;
+    --muted: #5b6573;
+    --line: #dde2e8;
+    --accent: #0f7a5c;
+    --accent-soft: #e3f3ed;
+    --warn: #9a5b00;
+    --warn-soft: #fff4e0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12161c;
+      --card: #1b2129;
+      --ink: #e7ebf0;
+      --muted: #9aa5b3;
+      --line: #2c3540;
+      --accent: #3cc49a;
+      --accent-soft: #173229;
+      --warn: #f0b45a;
+      --warn-soft: #33270f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Sarabun", "Noto Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  header, main { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+  header { padding-top: 20px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 0 0 12px; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
+  input[type=number], input[type=text] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--ink);
+    font: inherit;
+  }
+  .check { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 0.95rem; margin-top: 24px; }
+  .stats { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .stat { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; }
+  .stat .k { font-size: 0.8rem; color: var(--muted); }
+  .stat .v { font-size: 1.2rem; font-weight: 700; }
+  .note { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; margin-top: 12px; }
+  .note:empty { display: none; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 720px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  tr.section td { background: var(--accent-soft); font-weight: 700; }
+  tr.subtotal td { font-weight: 700; }
+  td input.price { width: 110px; text-align: right; padding: 4px 6px; }
+  tfoot td { font-weight: 700; }
+  tfoot tr.grand td { font-size: 1.1rem; color: var(--accent); border-top: 2px solid var(--accent); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  button {
+    font: inherit;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+  }
+  button.ghost { background: transparent; color: var(--accent); }
+  .muted { color: var(--muted); font-size: 0.85rem; }
+  @media print {
+    body { background: #fff; color: #000; }
+    .no-print { display: none !important; }
+    .card { border: none; padding: 0; }
+    td input.price { border: none; background: none; color: #000; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>BOQ สถานีชาร์จรถยนต์ไฟฟ้า (EV Charging Station)</h1>
+  <p class="sub">ประมาณการราคาเบื้องต้น – แปลงที่ดินติดทางหลวงหมายเลข 4051 (ข้าง เอช.เค โฮม การไฟฟ้า เลขที่ 112 หมู่ 11)</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>1. ข้อมูลแปลงที่ดิน</h2>
+    <div class="grid">
+      <div>
+        <label for="plotArea">พื้นที่แปลง (ตร.ม.)</label>
+        <input id="plotArea" type="number" min="0" step="10" value="1250">
+        <div class="muted" id="plotThai"></div>
+      </div>
+      <div>
+        <label for="pavedPct">สัดส่วนพื้นที่เทคอนกรีต (%)</label>
+        <input id="pavedPct" type="number" min="0" max="100" step="5" value="70">
+      </div>
+      <div>
+        <label for="fillDepth">ความหนาถมดินเฉลี่ย (ม.)</label>
+        <input id="fillDepth" type="number" min="0" step="0.05" value="0.30">
+      </div>
+      <div>
+        <label for="drainLen">ความยาวรางระบายน้ำ (ม.)</label>
+        <input id="drainLen" type="number" min="0" step="5" value="70">
+      </div>
+    </div>
+    <p class="muted">พื้นที่ตั้งต้นประมาณจากภาพแผนที่ดาวเทียม (ขนาดประมาณ 31–43 ม. ต่อด้าน ≈ 1,250 ตร.ม.) ซึ่งมีความคลาดเคลื่อนได้ กรุณาแก้ไขตามโฉนดหรือผลการรังวัดจริง</p>
+  </section>
+
+  <section class="card">
+    <h2>2. เครื่องชาร์จและระบบไฟฟ้า</h2>
+    <div class="grid" id="chargerInputs"></div>
+    <div class="grid" style="margin-top:12px">
+      <div>
+        <label for="runLen">ระยะสายป้อนเฉลี่ย MDB → เครื่องชาร์จ (ม.)</label>
+        <input id="runLen" type="number" min="0" step="5" value="30">
+      </div>
+      <div>
+        <label for="trenchLen">ความยาวร่องเดินท่อร้อยสายใต้ดิน (ม.)</label>
+        <input id="trenchLen" type="number" min="0" step="5" value="60">
+      </div>
+      <div>
+        <label for="hvPoles">จำนวนเสาไฟฟ้าแรงสูงที่ต้องปักเพิ่ม (ต้น)</label>
+        <input id="hvPoles" type="number" min="0" step="1" value="3">
+      </div>
+      <div>
+        <label for="demandFactor">Demand Factor</label>
+        <input id="demandFactor" type="number" min="0.1" max="1" step="0.05" value="1">
+      </div>
+      <div>
+        <label for="sparePct">เผื่อขยายในอนาคต (%)</label>
+        <input id="sparePct" type="number" min="0" step="5" value="20">
+      </div>
+      <div>
+        <label for="lightPoles">เสาไฟส่องสว่าง LED (ต้น)</label>
+        <input id="lightPoles" type="number" min="0" step="1" value="4">
+      </div>
+      <div>
+        <label class="check"><input id="canopy" type="checkbox" checked> มีหลังคาโครงเหล็กคลุมช่องจอด</label>
+      </div>
+    </div>
+    <div class="stats" style="margin-top:16px">
+      <div class="stat"><div class="k">กำลังชาร์จรวม</div><div class="v" id="sKW">-</div></div>
+      <div class="stat"><div class="k">ความต้องการ (kVA)</div><div class="v" id="sKVA">-</div></div>
+      <div class="stat"><div class="k">หม้อแปลงที่เลือก</div><div class="v" id="sTR">-</div></div>
+      <div class="stat"><div class="k">กระแสด้านแรงต่ำ (416 V)</div><div class="v" id="sAmp">-</div></div>
+      <div class="stat"><div class="k">จำนวนช่องจอดชาร์จ</div><div class="v" id="sBays">-</div></div>
+    </div>
+    <div class="note" id="warnings"></div>
+  </section>
+
+  <section class="card">
+    <h2>3. ค่าดำเนินการ</h2>
+    <div class="grid">
+      <div>
+        <label for="ohPct">ค่าดำเนินการและกำไร (%)</label>
+        <input id="ohPct" type="number" min="0" step="1" value="12">
+      </div>
+      <div>
+        <label for="contPct">เผื่อเหลือเผื่อขาด (%)</label>
+        <input id="contPct" type="number" min="0" step="1" value="5">
+      </div>
+      <div>
+        <label for="vatPct">ภาษีมูลค่าเพิ่ม (%)</label>
+        <input id="vatPct" type="number" min="0" step="1" value="7">
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4. บัญชีแสดงปริมาณวัสดุและราคา (BOQ)</h2>
+    <p class="muted no-print">ช่อง "ราคา/หน่วย" แก้ไขได้ เพื่อใส่ราคาจากใบเสนอราคาจริงของผู้ขาย</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ลำดับ</th>
+            <th>รายการ</th>
+            <th class="num">จำนวน</th>
+            <th>หน่วย</th>
+            <th class="num">ราคา/หน่วย (บาท)</th>
+            <th class="num">รวม (บาท)</th>
+          </tr>
+        </thead>
+        <tbody id="boqBody"></tbody>
+        <tfoot id="boqFoot"></tfoot>
+      </table>
+    </div>
+    <div class="actions no-print">
+      <button id="btnCsv" type="button">ส่งออก CSV (Excel)</button>
+      <button id="btnPrint" type="button" class="ghost">พิมพ์ / บันทึก PDF</button>
+      <button id="btnReset" type="button" class="ghost">คืนค่าราคาตั้งต้น</button>
+    </div>
+    <p class="muted">หมายเหตุ: ราคาตั้งต้นเป็นราคาประมาณการตลาดเพื่อใช้วางแผนงบประมาณเบื้องต้นเท่านั้น ต้องยืนยันด้วยใบเสนอราคาจากผู้ขาย ผลการออกแบบของวิศวกร และค่าธรรมเนียมที่ กฟภ. แจ้งจริงก่อนใช้งาน</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // Charger catalogue: price = equipment, install = installation & commissioning,
+  // foundation = pedestal/footing, cableRate = feeder cable THB/m, breaker = feeder MCCB.
+  var CHARGERS = [
+    { id: "dc180", name: "DC Fast Charger 180 kW (2 หัวจ่าย CCS2)", kw: 180, price: 1650000, install: 60000, foundation: 30000, cableRate: 2600, breaker: 35000, bays: 2, qty: 0 },
+    { id: "dc120", name: "DC Fast Charger 120 kW (2 หัวจ่าย CCS2)", kw: 120, price: 1150000, install: 50000, foundation: 25000, cableRate: 1900, breaker: 25000, bays: 2, qty: 2 },
+    { id: "dc60", name: "DC Charger 60 kW (2 หัวจ่าย CCS2)", kw: 60, price: 650000, install: 40000, foundation: 20000, cableRate: 1100, breaker: 15000, bays: 2, qty: 0 },
+    { id: "ac22", name: "AC Charger 22 kW 3 เฟส (Type 2)", kw: 22, price: 45000, install: 8000, foundation: 8000, cableRate: 380, breaker: 6000, bays: 1, qty: 2 },
+    { id: "ac7", name: "AC Charger 7.4 kW 1 เฟส (Type 2)", kw: 7.4, price: 25000, install: 6000, foundation: 6000, cableRate: 220, breaker: 4500, bays: 1, qty: 0 }
+  ];
+
+  // PEA standard 3-phase transformer sizes (kVA) with indicative supply & install price (THB).
+  var TRANSFORMERS = [
+    [160, 280000], [250, 360000], [315, 420000], [400, 500000], [500, 590000],
+    [630, 690000], [800, 850000], [1000, 1000000], [1250, 1250000], [1500, 1450000], [2000, 1850000]
+  ];
+
+  var POWER_FACTOR = 0.95;
+  var LV_VOLTAGE = 416;
+  var BAY_AREA = 3.0 * 6.0;   // m² per parking bay
+  var CANOPY_OVERHANG = 1.3;  // canopy area multiplier over bays
+
+  var overrides = {};
+  var currentRows = [];
+  var currentTotals = null;
+
+  function $(id) { return document.getElementById(id); }
+
+  function num(id) {
+    var v = parseFloat($(id).value);
+    return isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  function fmt(n, digits) {
+    return n.toLocaleString("th-TH", {
+      minimumFractionDigits: digits || 0,
+      maximumFractionDigits: digits || 0
+    });
+  }
+
+  function thaiLandUnits(m2) {
+    var sqWa = m2 / 4;
+    var rai = Math.floor(sqWa / 400);
+    var ngan = Math.floor((sqWa - rai * 400) / 100);
+    var wa = sqWa - rai * 400 - ngan * 100;
+    return rai + " ไร่ " + ngan + " งาน " + fmt(wa, 1) + " ตร.วา";
+  }
+
+  function buildChargerInputs() {
+    var wrap = $("chargerInputs");
+    CHARGERS.forEach(function (c) {
+      var div = document.createElement("div");
+      var lab = document.createElement("label");
+      lab.setAttribute("for", "q_" + c.id);
+      lab.textContent = c.name + " (เครื่อง)";
+      var inp = document.createElement("input");
+      inp.type = "number";
+      inp.min = "0";
+      inp.step = "1";
+      inp.id = "q_" + c.id;
+      inp.value = String(c.qty);
+      inp.addEventListener("input", render);
+      div.appendChild(lab);
+      div.appendChild(inp);
+      wrap.appendChild(div);
+    });
+  }
+
+  function pickTransformer(kva) {
+    for (var i = 0; i < TRANSFORMERS.length; i++) {
+      if (TRANSFORMERS[i][0] >= kva) {
+        return { size: TRANSFORMERS[i][0], price: TRANSFORMERS[i][1], units: 1 };
+      }
+    }
+    var largest = TRANSFORMERS[TRANSFORMERS.length - 1];
+    return { size: largest[0], price: largest[1], units: Math.ceil(kva / largest[0]) };
+  }
+
+  function calc() {
+    var area = num("plotArea");
+    var paved = area * Math.min(num("pavedPct"), 100) / 100;
+    var fillDepth = num("fillDepth");
+    var drainLen = num("drainLen");
+    var runLen = num("runLen");
+    var trenchLen = num("trenchLen");
+    var hvPoles = Math.round(num("hvPoles"));
+    var demand = Math.min(Math.max(num("demandFactor"), 0.1), 1);
+    var spare = num("sparePct");
+    var lightPoles = Math.round(num("lightPoles"));
+    var hasCanopy = $("canopy").checked;
+
+    var counts = {};
+    var totalKW = 0, totalUnits = 0, totalBays = 0;
+    CHARGERS.forEach(function (c) {
+      var q = Math.round(num("q_" + c.id));
+      counts[c.id] = q;
+      totalKW += c.kw * q;
+      totalUnits += q;
+      totalBays += c.bays * q;
+    });
+
+    var kvaReq = totalKW * demand / POWER_FACTOR * (1 + spare / 100);
+    var tr = pickTransformer(kvaReq);
+    var installedKVA = tr.size * tr.units;
+    var lvAmp = installedKVA * 1000 / (Math.sqrt(3) * LV_VOLTAGE);
+
+    var warnings = [];
+    if (totalUnits === 0) warnings.push("ยังไม่ได้ระบุจำนวนเครื่องชาร์จ");
+    if (tr.units > 1) warnings.push("ความต้องการไฟฟ้าเกิน 2,000 kVA ต้องใช้หม้อแปลง " + tr.units + " ลูก และควรให้วิศวกรออกแบบระบบเฉพาะ");
+    if (totalBays * BAY_AREA * 2.2 > area && area > 0) warnings.push("จำนวนช่องจอดอาจมากเกินพื้นที่แปลง (รวมทางวิ่งประมาณ " + fmt(totalBays * BAY_AREA * 2.2) + " ตร.ม.)");
+    if (installedKVA >= 250) warnings.push("หม้อแปลงตั้งแต่ 250 kVA ขึ้นไป กฟภ. มักกำหนดให้ติดตั้งมิเตอร์ด้านแรงสูงหรือแบบ TOU – ตรวจสอบเงื่อนไขกับ กฟภ. ในพื้นที่");
+
+    var canopyArea = hasCanopy ? totalBays * BAY_AREA * CANOPY_OVERHANG : 0;
+
+    var sections = [];
+
+    sections.push({ title: "งานเตรียมพื้นที่และงานโยธา", items: [
+      { key: "survey", name: "งานสำรวจ รังวัด และเจาะสำรวจดิน", qty: 1, unit: "งาน", price: 35000 },
+      { key: "clear", name: "งานถางหญ้า ขุดตอ ปรับพื้นที่", qty: area, unit: "ตร.ม.", price: 25 },
+      { key: "fill", name: "งานถมดินพร้อมบดอัด 95% Standard Proctor", qty: area * fillDepth, unit: "ลบ.ม.", price: 450 },
+      { key: "pave", name: "พื้นคอนกรีตเสริมเหล็ก หนา 15 ซม. (รวมทรายรองพื้น)", qty: paved, unit: "ตร.ม.", price: 750 },
+      { key: "drain", name: "รางระบายน้ำ คสล. พร้อมฝาตะแกรงเหล็ก", qty: drainLen, unit: "ม.", price: 1400 },
+      { key: "canopy", name: "หลังคาโครงเหล็กคลุมช่องจอด พร้อมฐานราก", qty: canopyArea, unit: "ตร.ม.", price: 3800 },
+      { key: "marking", name: "ตีเส้นและทาสีเขียวช่องจอด EV", qty: totalBays, unit: "ช่อง", price: 4500 },
+      { key: "wheelstop", name: "แท่งกั้นล้อ (Wheel Stop)", qty: totalBays, unit: "ชุด", price: 1500 },
+      { key: "bollard", name: "เสากันชนเหล็กป้องกันเครื่องชาร์จ", qty: totalUnits * 2, unit: "ต้น", price: 3500 }
+    ]});
+
+    var hvItems = [
+      { key: "hvpole", name: "เสาไฟฟ้า คอร. 12 ม. พร้อมปักและอุปกรณ์ยึด", qty: hvPoles, unit: "ต้น", price: 18000 },
+      { key: "hvcable", name: "สายไฟฟ้าแรงสูง 22 kV (3 เส้น) ระยะช่วงเสาละ 40 ม.", qty: hvPoles * 40, unit: "ม.", price: 1050 },
+      { key: "hvgear", name: "ชุดดร็อปเอาท์ฟิวส์คัตเอาท์และล่อฟ้าแรงสูง", qty: tr.units, unit: "ชุด", price: 95000 },
+      { key: "tr", name: "หม้อแปลงไฟฟ้า 3 เฟส 22 kV/416-240 V ขนาด " + fmt(tr.size) + " kVA", qty: tr.units, unit: "ลูก", price: tr.price },
+      { key: "trpad", name: "นั่งร้าน/แท่นฐานหม้อแปลงพร้อมรั้วกั้น", qty: tr.units, unit: "ชุด", price: 85000 },
+      { key: "pea", name: "ค่าธรรมเนียมขอใช้ไฟฟ้า มิเตอร์ และหลักประกัน กฟภ. (ประมาณ)", qty: 1, unit: "งาน", price: 150000 }
+    ];
+    sections.push({ title: "งานระบบไฟฟ้าแรงสูงและหม้อแปลง", items: hvItems });
+
+    var lvItems = [
+      { key: "maincable", name: "สายเมนแรงต่ำ หม้อแปลง → MDB (พิกัด " + fmt(lvAmp) + " A)", qty: 15 * tr.units, unit: "ม.", price: Math.round(lvAmp * 4.5) },
+      { key: "mdb", name: "ตู้ MDB พร้อม Main Breaker, SPD และมิเตอร์วัดพลังงาน", qty: tr.units, unit: "ตู้", price: Math.round(150000 + 250 * lvAmp / tr.units) }
+    ];
+    CHARGERS.forEach(function (c) {
+      if (!counts[c.id]) return;
+      lvItems.push({ key: "brk_" + c.id, name: "เบรกเกอร์ป้อนวงจร + RCD สำหรับ " + c.name, qty: counts[c.id], unit: "ชุด", price: c.breaker });
+      lvItems.push({ key: "cab_" + c.id, name: "สายป้อนวงจร (ร้อยท่อ) สำหรับ " + c.name, qty: counts[c.id] * runLen, unit: "ม.", price: c.cableRate });
+    });
+    lvItems.push(
+      { key: "trench", name: "ขุดร่อง วางท่อ HDPE ฝังดิน พร้อมบ่อพักสาย และกลบบดอัด", qty: trenchLen, unit: "ม.", price: 1350 },
+      { key: "ground", name: "ระบบสายดินและหลักดิน (ค่าความต้านทาน ≤ 5 Ω)", qty: 1, unit: "ระบบ", price: 65000 },
+      { key: "light", name: "เสาไฟส่องสว่าง LED สูง 8 ม. พร้อมฐานราก", qty: lightPoles, unit: "ต้น", price: 22000 },
+      { key: "aux", name: "ตู้ไฟฟ้าย่อยและวงจรแสงสว่าง/ปลั๊ก/CCTV", qty: 1, unit: "ชุด", price: 45000 }
+    );
+    sections.push({ title: "งานระบบไฟฟ้าแรงต่ำ", items: lvItems });
+
+    var evItems = [];
+    CHARGERS.forEach(function (c) {
+      if (!counts[c.id]) return;
+      evItems.push({ key: "eq_" + c.id, name: c.name, qty: counts[c.id], unit: "เครื่อง", price: c.price });
+      evItems.push({ key: "fd_" + c.id, name: "ฐานคอนกรีตเครื่องชาร์จ – " + c.name, qty: counts[c.id], unit: "ฐาน", price: c.foundation });
+      evItems.push({ key: "in_" + c.id, name: "ค่าติดตั้งและทดสอบเดินเครื่อง – " + c.name, qty: counts[c.id], unit: "เครื่อง", price: c.install });
+    });
+    evItems.push(
+      { key: "cms", name: "ระบบบริหารจัดการสถานี (CMS/OCPP) และเชื่อมต่อแอปชำระเงิน", qty: totalUnits > 0 ? 1 : 0, unit: "ระบบ", price: 60000 },
+      { key: "net", name: "อุปกรณ์อินเทอร์เน็ต (Fiber/4G Router)", qty: totalUnits > 0 ? 1 : 0, unit: "ชุด", price: 15000 }
+    );
+    sections.push({ title: "อุปกรณ์ชาร์จรถยนต์ไฟฟ้า", items: evItems });
+
+    sections.push({ title: "งานความปลอดภัยและป้าย", items: [
+      { key: "cctv", name: "ระบบกล้องวงจรปิด 4 ตัว พร้อมเครื่องบันทึก", qty: 1, unit: "ชุด", price: 65000 },
+      { key: "fire", name: "ถังดับเพลิงชนิด ABC/CO2 ขนาด 15 ปอนด์ พร้อมตู้", qty: Math.max(2, totalUnits), unit: "ถัง", price: 3500 },
+      { key: "pylon", name: "ป้ายสถานี (Pylon Sign) พร้อมไฟส่องสว่าง", qty: 1, unit: "ป้าย", price: 120000 },
+      { key: "sign", name: "ป้ายคำแนะนำการใช้งานและป้ายเตือนความปลอดภัย", qty: totalUnits, unit: "ชุด", price: 2500 }
+    ]});
+
+    sections.push({ title: "งานออกแบบ ขออนุญาต และทดสอบระบบ", items: [
+      { key: "design", name: "ออกแบบงานไฟฟ้าและโยธา พร้อมลงนามวิศวกรผู้มีใบอนุญาต", qty: 1, unit: "งาน", price: 120000 },
+      { key: "permit", name: "ขออนุญาตก่อสร้าง และแจ้ง/ขออนุญาตหน่วยงานที่เกี่ยวข้อง", qty: 1, unit: "งาน", price: 50000 },
+      { key: "test", name: "ทดสอบ ตรวจรับ และรับรองระบบไฟฟ้า (Insulation/Earth Test)", qty: 1, unit: "งาน", price: 40000 }
+    ]});
+
+    return {
+      sections: sections,
+      totalKW: totalKW,
+      kvaReq: kvaReq,
+      tr: tr,
+      lvAmp: lvAmp,
+      totalBays: totalBays,
+      warnings: warnings
+    };
+  }
+
+  function unitPrice(item) {
+    return Object.prototype.hasOwnProperty.call(overrides, item.key) ? overrides[item.key] : item.price;
+  }
+
+  function td(text, cls) {
+    var cell = document.createElement("td");
+    if (cls) cell.className = cls;
+    cell.textContent = text;
+    return cell;
+  }
+
+  function render() {
+    $("plotThai").textContent = "≈ " + thaiLandUnits(num("plotArea"));
+
+    var r = calc();
+    $("sKW").textContent = fmt(r.totalKW, 1) + " kW";
+    $("sKVA").textContent = fmt(r.kvaReq) + " kVA";
+    $("sTR").textContent = (r.tr.units > 1 ? r.tr.units + " × " : "") + fmt(r.tr.size) + " kVA";
+    $("sAmp").textContent = fmt(r.lvAmp) + " A";
+    $("sBays").textContent = fmt(r.totalBays) + " ช่อง";
+    $("warnings").textContent = r.warnings.join(" • ");
+
+    var body = $("boqBody");
+    body.innerHTML = "";
+    currentRows = [];
+    var direct = 0;
+
+    r.sections.forEach(function (sec, si) {
+      var items = sec.items.filter(function (it) { return it.qty > 0; });
+      if (!items.length) return;
+      var secNo = String(currentRows.filter(function (x) { return x.type === "section"; }).length + 1);
+
+      var hr = document.createElement("tr");
+      hr.className = "section";
+      hr.appendChild(td(secNo));
+      var titleCell = td(sec.title);
+      titleCell.colSpan = 5;
+      hr.appendChild(titleCell);
+      body.appendChild(hr);
+      currentRows.push({ type: "section", no: secNo, name: sec.title });
+
+      var subtotal = 0;
+      items.forEach(function (it, ii) {
+        var price = unitPrice(it);
+        var amount = it.qty * price;
+        subtotal += amount;
+        var no = secNo + "." + (ii + 1);
+
+        var tr = document.createElement("tr");
+        tr.appendChild(td(no));
+        tr.appendChild(td(it.name));
+        tr.appendChild(td(fmt(it.qty, Number.isInteger(it.qty) ? 0 : 2), "num"));
+        tr.appendChild(td(it.unit));
+
+        var pc = document.createElement("td");
+        pc.className = "num";
+        var inp = document.createElement("input");
+        inp.type = "number";
+        inp.min = "0";
+        inp.step = "any";
+        inp.className = "price";
+        inp.value = String(price);
+        inp.setAttribute("aria-label", "ราคาต่อหน่วย " + it.name);
+        inp.addEventListener("change", function () {
+          var v = parseFloat(inp.value);
+          if (isFinite(v) && v >= 0) {
+            overrides[it.key] = v;
+          } else {
+            delete overrides[it.key];
+          }
+          render();
+        });
+        pc.appendChild(inp);
+        tr.appendChild(pc);
+
+        tr.appendChild(td(fmt(amount, 2), "num"));
+        body.appendChild(tr);
+        currentRows.push({ type: "item", no: no, name: it.name, qty: it.qty, unit: it.unit, price: price, amount: amount });
+      });
+
+      var st = document.createElement("tr");
+      st.className = "subtotal";
+      st.appendChild(td(""));
+      var stLabel = td("รวมหมวด " + secNo);
+      stLabel.colSpan = 4;
+      st.appendChild(stLabel);
+      st.appendChild(td(fmt(subtotal, 2), "num"));
+      body.appendChild(st);
+      currentRows.push({ type: "subtotal", name: "รวมหมวด " + secNo, amount: subtotal });
+
+      direct += subtotal;
+    });
+
+    var oh = direct * num("ohPct") / 100;
+    var cont = direct * num("contPct") / 100;
+    var beforeVat = direct + oh + cont;
+    var vat = beforeVat * num("vatPct") / 100;
+    var grand = beforeVat + vat;
+    currentTotals = [
+      ["ค่างานต้นทุน (Direct Cost)", direct],
+      ["ค่าดำเนินการและกำไร " + num("ohPct") + "%", oh],
+      ["เผื่อเหลือเผื่อขาด " + num("contPct") + "%", cont],
+      ["รวมก่อนภาษีมูลค่าเพิ่ม", beforeVat],
+      ["ภาษีมูลค่าเพิ่ม " + num("vatPct") + "%", vat],
+      ["รวมทั้งสิ้น", grand]
+    ];
+
+    var foot = $("boqFoot");
+    foot.innerHTML = "";
+    currentTotals.forEach(function (row, i) {
+      var tr = document.createElement("tr");
+      if (i === currentTotals.length - 1) tr.className = "grand";
+      tr.appendChild(td(""));
+      var l = td(row[0]);
+      l.colSpan = 4;
+      tr.appendChild(l);
+      tr.appendChild(td(fmt(row[1], 2), "num"));
+      foot.appendChild(tr);
+    });
+  }
+
+  function csvCell(v) {
+    var s = String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  function exportCsv() {
+    var lines = [["ลำดับ", "รายการ", "จำนวน", "หน่วย", "ราคา/หน่วย", "รวม"]];
+    currentRows.forEach(function (r) {
+      if (r.type === "section") lines.push([r.no, r.name, "", "", "", ""]);
+      else if (r.type === "item") lines.push([r.no, r.name, r.qty.toFixed(2), r.unit, r.price.toFixed(2), r.amount.toFixed(2)]);
+      else lines.push(["", r.name, "", "", "", r.amount.toFixed(2)]);
+    });
+    (currentTotals || []).forEach(function (t) { lines.push(["", t[0], "", "", "", t[1].toFixed(2)]); });
+    var csv = "﻿" + lines.map(function (l) { return l.map(csvCell).join(","); }).join("\r\n");
+    var blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "BOQ-EV-Charging-Station.csv";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  }
+
+  buildChargerInputs();
+  ["plotArea", "pavedPct", "fillDepth", "drainLen", "runLen", "trenchLen", "hvPoles",
+   "demandFactor", "sparePct", "lightPoles", "ohPct", "contPct", "vatPct"].forEach(function (id) {
+    $(id).addEventListener("input", render);
+  });
+  $("canopy").addEventListener("change", render);
+  $("btnCsv").addEventListener("click", exportCsv);
+  $("btnPrint").addEventListener("click", function () { window.print(); });
+  $("btnReset").addEventListener("click", function () { overrides = {}; render(); });
+
+  render();
+})();
+</script>
+</body>
+</html>
