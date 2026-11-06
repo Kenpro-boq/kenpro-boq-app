@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KenPro – ใบเสนอราคาออกแบบและก่อสร้างสถานีชาร์จ EV</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --ink: #1c2430;
+    --muted: #5b6573;
+    --line: #dde2e8;
+    --accent: #0f7a5c;
+    --accent-soft: #e3f3ed;
+    --warn: #9a5b00;
+    --warn-soft: #fff4e0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12161c;
+      --card: #1b2129;
+      --ink: #e7ebf0;
+      --muted: #9aa5b3;
+      --line: #2c3540;
+      --accent: #3cc49a;
+      --accent-soft: #173229;
+      --warn: #f0b45a;
+      --warn-soft: #33270f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Sarabun", "Noto Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  header.app, main { max-width: 1000px; margin: 0 auto; padding: 0 16px; }
+  header.app { padding-top: 20px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 0 0 10px; }
+  h3 { font-size: 1rem; margin: 16px 0 8px; }
+  p { margin: 0 0 8px; }
+  ul, ol { margin: 0 0 8px; padding-left: 22px; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .muted { color: var(--muted); font-size: 0.85rem; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  details.card > summary { cursor: pointer; font-weight: 700; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 12px; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
+  input[type=number], input[type=text], input[type=date], textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--ink);
+    font: inherit;
+  }
+  textarea { min-height: 60px; resize: vertical; }
+  .check { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 0.95rem; margin-top: 24px; }
+
+  /* View switch */
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tabs button { flex: 1 1 200px; }
+  .tabs button[aria-selected=false] { background: transparent; color: var(--accent); }
+  button {
+    font: inherit;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+  }
+  button.ghost { background: transparent; color: var(--accent); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+  /* Document */
+  .doc { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 28px 28px 32px; margin-bottom: 24px; }
+  .doc[hidden] { display: none; }
+  .letterhead { display: flex; gap: 16px; align-items: flex-start; border-bottom: 3px solid var(--accent); padding-bottom: 12px; margin-bottom: 16px; }
+  .logo { flex: 0 0 88px; height: 88px; border: 2px dashed var(--line); border-radius: 8px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 0.75rem; color: var(--muted); }
+  .co { flex: 1; min-width: 0; }
+  .co .name { font-size: 1.25rem; font-weight: 700; }
+  .co .en { color: var(--muted); font-size: 0.9rem; }
+  .co .addr { font-size: 0.85rem; color: var(--muted); }
+  .doc-title { text-align: center; margin: 8px 0 16px; }
+  .doc-title .t { font-size: 1.3rem; font-weight: 700; }
+  .doc-title .e { color: var(--muted); font-size: 0.9rem; }
+  .meta { display: grid; gap: 4px 24px; grid-template-columns: 1fr 1fr; margin-bottom: 16px; font-size: 0.92rem; }
+  .meta .k { color: var(--muted); display: inline-block; min-width: 110px; }
+  .box { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+  .highlight { background: var(--accent-soft); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+  .warnbox { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 0.92rem; }
+  .values { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-bottom: 8px; }
+  .value { border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 10px 12px; }
+  .value b { display: block; margin-bottom: 2px; }
+  .kpis { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: 14px; }
+  .kpi { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; }
+  .kpi .k { font-size: 0.8rem; color: var(--muted); }
+  .kpi .v { font-size: 1.15rem; font-weight: 700; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  table.boq { min-width: 640px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  tr.section td { background: var(--accent-soft); font-weight: 700; }
+  tr.subtotal td { font-weight: 700; }
+  tr.note td { color: var(--muted); font-size: 0.85rem; }
+  td input.price { width: 110px; text-align: right; padding: 4px 6px; }
+  tfoot td { font-weight: 700; }
+  tfoot tr.grand td { font-size: 1.1rem; color: var(--accent); border-top: 2px solid var(--accent); }
+  .baht-text { text-align: right; font-size: 0.92rem; margin-top: 6px; }
+
+  .sign { display: grid; gap: 24px; grid-template-columns: 1fr 1fr; margin-top: 32px; text-align: center; font-size: 0.92rem; }
+  .sign .line { border-bottom: 1px dotted var(--ink); height: 48px; margin-bottom: 6px; }
+  .page-break { break-before: page; }
+
+  @media (max-width: 560px) {
+    .doc { padding: 18px 14px; }
+    .meta { grid-template-columns: 1fr; }
+    .sign { grid-template-columns: 1fr; }
+    .letterhead { flex-direction: column; }
+  }
+  @media print {
+    @page { size: A4; margin: 14mm 12mm; }
+    body { background: #fff; color: #000; font-size: 13px; }
+    header.app, .no-print { display: none !important; }
+    main { max-width: none; padding: 0; }
+    .doc { border: none; padding: 0; margin: 0; }
+    .logo { border-color: #999; }
+    td input.price { border: none; background: none; color: #000; padding: 0; width: auto; }
+    .value, .kpi, .highlight, tr.section td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    tr, .box, .value, .sign { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<header class="app">
+  <h1>ใบเสนอราคาออกแบบและก่อสร้างสถานีชาร์จรถยนต์ไฟฟ้า</h1>
+  <p class="sub">เลือก "ฉบับงบประมาณ" สำหรับลูกค้าที่ขอราคาเบื้องต้น หรือ "ฉบับเต็ม" สำหรับลูกค้าที่ตัดสินใจจ้าง ทั้งสองฉบับใช้ข้อมูลชุดเดียวกันด้านล่าง</p>
+</header>
+
+<main>
+  <div class="tabs no-print" role="tablist">
+    <button type="button" role="tab" id="tabBudget" aria-controls="docBudget" aria-selected="true">ฉบับงบประมาณ (Budget)</button>
+    <button type="button" role="tab" id="tabFull" aria-controls="docFull" aria-selected="false">ฉบับเต็ม (Full – สำหรับลูกค้าที่ตัดสินใจจ้าง)</button>
+  </div>
+
+  <details class="card no-print" open>
+    <summary>ข้อมูลสำหรับออกใบเสนอราคา (แก้ไขได้ – บันทึกในเบราว์เซอร์อัตโนมัติ)</summary>
+
+    <h3>หัวกระดาษบริษัท</h3>
+    <div class="grid">
+      <div><label for="coName">ชื่อบริษัท (ไทย)</label><input id="coName" type="text" value=""></div>
+      <div><label for="coNameEn">ชื่อบริษัท (อังกฤษ)</label><input id="coNameEn" type="text" value=""></div>
+      <div><label for="coTax">เลขประจำตัวผู้เสียภาษี</label><input id="coTax" type="text" value=""></div>
+      <div><label for="coPhone">โทรศัพท์</label><input id="coPhone" type="text" value=""></div>
+      <div><label for="coEmail">อีเมล</label><input id="coEmail" type="text" value=""></div>
+      <div><label for="coLine">LINE OA / เว็บไซต์</label><input id="coLine" type="text" value=""></div>
+    </div>
+    <div class="grid">
+      <div style="grid-column: 1 / -1"><label for="coAddr">ที่อยู่บริษัท</label><input id="coAddr" type="text" value=""></div>
+    </div>
+
+    <h3>ลูกค้าและเอกสาร</h3>
+    <div class="grid">
+      <div><label for="qNo">เลขที่ใบเสนอราคา</label><input id="qNo" type="text" value="QT-EV-2569-001"></div>
+      <div><label for="qDate">วันที่</label><input id="qDate" type="date"></div>
+      <div><label for="qValid">ยืนราคา (วัน)</label><input id="qValid" type="number" min="1" step="1" value="30"></div>
+      <div><label for="custName">ชื่อลูกค้า / บริษัท</label><input id="custName" type="text" value=""></div>
+      <div><label for="custContact">ผู้ติดต่อ</label><input id="custContact" type="text" value=""></div>
+      <div><label for="custPhone">โทรศัพท์ลูกค้า</label><input id="custPhone" type="text" value=""></div>
+      <div><label for="salesName">ผู้เสนอราคา (ฝ่ายขาย)</label><input id="salesName" type="text" value=""></div>
+    </div>
+    <div class="grid">
+      <div style="grid-column: 1 / -1"><label for="siteName">สถานที่ก่อสร้าง</label><input id="siteName" type="text" value="แปลงที่ดินติดทางหลวงหมายเลข 4051 (ข้าง เอช.เค โฮม การไฟฟ้า เลขที่ 112 หมู่ 11) อ.หนองแค จ.สระบุรี"></div>
+    </div>
+
+    <h3>ขนาดโครงการ (ใช้คำนวณปริมาณงานก่อสร้าง)</h3>
+    <div class="grid">
+      <div><label for="plotArea">พื้นที่แปลง (ตร.ม.)</label><input id="plotArea" type="number" min="0" step="10" value="1250"><div class="muted" id="plotThai"></div></div>
+      <div><label for="pavedPct">สัดส่วนพื้นที่เทคอนกรีต (%)</label><input id="pavedPct" type="number" min="0" max="100" step="5" value="70"></div>
+      <div><label for="fillDepth">ความหนาถมดินเฉลี่ย (ม.)</label><input id="fillDepth" type="number" min="0" step="0.05" value="0.30"></div>
+      <div><label for="drainLen">ความยาวรางระบายน้ำ (ม.)</label><input id="drainLen" type="number" min="0" step="5" value="70"></div>
+      <div><label for="bays">จำนวนช่องจอดชาร์จ (ช่อง)</label><input id="bays" type="number" min="0" step="1" value="6"></div>
+      <div><label for="pedestals">จำนวนฐานเครื่องชาร์จ (ฐาน)</label><input id="pedestals" type="number" min="0" step="1" value="4"></div>
+      <div><label for="sleeveLen">ท่อร้อยสายเปล่าฝังใต้พื้น (ม.)</label><input id="sleeveLen" type="number" min="0" step="5" value="60"></div>
+      <div><label class="check"><input id="canopy" type="checkbox" checked> มีหลังคาโครงเหล็กคลุมช่องจอด</label></div>
+    </div>
+
+    <h3>ค่าบริการและเงื่อนไขราคา</h3>
+    <div class="grid">
+      <div><label for="designFee">ค่าออกแบบ + Shop Drawing (บาท)</label><input id="designFee" type="number" min="0" step="1000" value="300000"></div>
+      <div><label for="ohPct">ค่าดำเนินการและกำไรงานก่อสร้าง (%)</label><input id="ohPct" type="number" min="0" step="1" value="12"></div>
+      <div><label for="contPct">เผื่อเหลือเผื่อขาด (%)</label><input id="contPct" type="number" min="0" step="1" value="5"></div>
+      <div><label for="vatPct">ภาษีมูลค่าเพิ่ม (%)</label><input id="vatPct" type="number" min="0" step="1" value="7"></div>
+      <div><label for="rangePct">ช่วงความคลาดเคลื่อนฉบับงบประมาณ (± %)</label><input id="rangePct" type="number" min="0" step="1" value="15"></div>
+      <div><label for="buildDays">ระยะเวลาก่อสร้าง (วัน)</label><input id="buildDays" type="number" min="1" step="1" value="90"></div>
+      <div><label for="designDays">ระยะเวลาออกแบบ (วัน)</label><input id="designDays" type="number" min="1" step="1" value="30"></div>
+      <div><label for="warrantyMonths">รับประกันงานก่อสร้าง (เดือน)</label><input id="warrantyMonths" type="number" min="0" step="1" value="12"></div>
+    </div>
+
+    <div class="actions">
+      <button id="btnPrint" type="button">พิมพ์ / บันทึก PDF ฉบับที่เลือก</button>
+      <button id="btnResetPrice" type="button" class="ghost">คืนค่าราคาต่อหน่วยตั้งต้น</button>
+      <button id="btnClear" type="button" class="ghost">ล้างข้อมูลที่บันทึกไว้</button>
+    </div>
+    <p class="muted">ช่องที่เว้นว่างจะแสดงเป็นข้อความ [ ... ] ในเอกสาร เพื่อเตือนให้กรอกก่อนส่งลูกค้า ราคาต่อหน่วยในฉบับเต็มแก้ไขได้โดยตรงในตาราง</p>
+  </details>
+
+  <!-- ===================== BUDGET VERSION ===================== -->
+  <article class="doc" id="docBudget" role="tabpanel" aria-labelledby="tabBudget">
+    <div class="letterhead" data-letterhead></div>
+    <div class="doc-title">
+      <div class="t">ใบเสนอราคาเบื้องต้น (งบประมาณ)</div>
+      <div class="e">Budget Quotation – EV Charging Station Design &amp; Construction</div>
+    </div>
+    <div class="meta" data-meta></div>
+
+    <div class="highlight">
+      <b>วัตถุประสงค์:</b> ใบเสนอราคาฉบับนี้จัดทำเพื่อให้ท่านใช้ประกอบการวางแผนงบประมาณและตัดสินใจลงทุนเบื้องต้น
+      ราคางานก่อสร้างเป็นราคาประมาณการ (± <span data-f="rangePct"></span>%) ซึ่งจะยืนยันเป็นราคาคงที่ในใบเสนอราคาฉบับเต็มหลังสำรวจพื้นที่
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="k">พื้นที่โครงการ</div><div class="v" data-f="areaText"></div></div>
+      <div class="kpi"><div class="k">ช่องจอดชาร์จ</div><div class="v" data-f="baysText"></div></div>
+      <div class="kpi"><div class="k">ระยะเวลาโดยประมาณ</div><div class="v" data-f="totalDaysText"></div></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>ลำดับ</th><th>รายการ</th><th class="num">จำนวนเงิน (บาท)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>ค่าออกแบบผังโครงการ สถาปัตยกรรม โครงสร้าง และ Shop Drawing (ราคาคงที่)</td><td class="num" data-f="designFeeFmt"></td></tr>
+          <tr><td>2</td><td>ค่างานก่อสร้างโยธา หลังคา ป้าย และงานพื้นที่ (ประมาณการ)<div class="muted" data-f="buildRangeText"></div></td><td class="num" data-f="buildBeforeVatFmt"></td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td></td><td>รวมก่อนภาษีมูลค่าเพิ่ม</td><td class="num" data-f="beforeVatFmt"></td></tr>
+          <tr><td></td><td>ภาษีมูลค่าเพิ่ม <span data-f="vatPct"></span>%</td><td class="num" data-f="vatFmt"></td></tr>
+          <tr class="grand"><td></td><td>รวมงบประมาณโดยประมาณ</td><td class="num" data-f="grandFmt"></td></tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="baht-text">(<span data-f="grandThai"></span>)</div>
+
+    <h3>ขอบเขตงานโดยสรุป</h3>
+    <ul>
+      <li>ออกแบบผังสถานี การจัดช่องจอด ทางเข้า–ออก และการไหลของรถ</li>
+      <li>ออกแบบสถาปัตยกรรม หลังคาคลุมช่องจอด ป้ายสถานี และแบบโครงสร้าง พร้อม Shop Drawing</li>
+      <li>ก่อสร้างงานเตรียมพื้นที่ ถมดิน พื้นคอนกรีต รางระบายน้ำ หลังคา ฐานเครื่องชาร์จ ตีเส้น และงานป้าย</li>
+    </ul>
+
+    <h3>ไม่รวมในใบเสนอราคา</h3>
+    <ul data-exclusions></ul>
+
+    <p class="muted">ยืนราคา <span data-f="qValid"></span> วัน นับจากวันที่ในใบเสนอราคา • ราคาประมาณการอ้างอิงขนาดพื้นที่จากภาพถ่ายดาวเทียม ต้องยืนยันด้วยโฉนดหรือผลการรังวัดจริง</p>
+
+    <div class="sign">
+      <div><div class="line"></div>ผู้เสนอราคา<br><span data-f="salesNameText"></span></div>
+      <div><div class="line"></div>ผู้รับใบเสนอราคา<br><span data-f="custContactText"></span></div>
+    </div>
+  </article>
+
+  <!-- ===================== FULL VERSION ===================== -->
+  <article class="doc" id="docFull" role="tabpanel" aria-labelledby="tabFull" hidden>
+    <div class="letterhead" data-letterhead></div>
+    <div class="doc-title">
+      <div class="t">ใบเสนอราคา</div>
+      <div class="e">Quotation – EV Charging Station Design &amp; Construction (Full Version)</div>
+    </div>
+    <div class="meta" data-meta></div>
+
+    <p>เรียน <span data-f="custContactText"></span> / <span data-f="custNameText"></span></p>
+    <p>บริษัทฯ ขอขอบพระคุณที่ท่านไว้วางใจพิจารณาให้เราเป็นผู้ออกแบบและก่อสร้างสถานีชาร์จรถยนต์ไฟฟ้า
+      ณ <span data-f="siteNameText"></span> บริษัทฯ ยินดีเสนอราคาและขอบเขตงานโดยมีรายละเอียดดังนี้</p>
+
+    <h2>1. คุณค่าที่ท่านจะได้รับจากโครงการนี้</h2>
+    <p>สถานีชาร์จที่ทำรายได้ดีไม่ได้เริ่มจากเครื่องชาร์จที่แพงที่สุด แต่เริ่มจากผังที่ถูกต้อง เราจึงรับผิดชอบส่วนที่เป็น
+      "ตัวสถานี" ทั้งหมด ตั้งแต่ผังไปจนถึงงานก่อสร้างที่ส่งมอบพร้อมให้ผู้ติดตั้งเครื่องชาร์จเข้าทำงานได้ทันที</p>
+    <div class="values">
+      <div class="value"><b>ผังที่ออกแบบเพื่อรายได้</b>จัดช่องจอดและทางวิ่งให้รถเข้า–ออกได้สะดวก รองรับรถหลายขนาด ลดเวลารอคิว ซึ่งส่งผลโดยตรงต่อจำนวนรถที่ชาร์จได้ต่อวัน</div>
+      <div class="value"><b>มองเห็นได้จากถนนใหญ่</b>วางตำแหน่งป้ายสถานี (Pylon) และหลังคาให้ผู้ขับขี่บนทางหลวงเห็นสถานีได้ก่อนถึงทางเข้า เพิ่มโอกาสที่รถจะแวะใช้บริการ</div>
+      <div class="value"><b>เตรียมพร้อมขยายในอนาคต</b>เผื่อพื้นที่ช่องจอด ฐานเครื่องชาร์จ และท่อร้อยสายเปล่าไว้ล่วงหน้า เมื่อธุรกิจโตสามารถเพิ่มเครื่องชาร์จได้โดยไม่ต้องรื้อพื้นคอนกรีต</div>
+      <div class="value"><b>Shop Drawing ก่อนลงมือก่อสร้าง</b>ทุกจุดถูกกำหนดในแบบก่อนเริ่มงาน ลดการแก้ไขหน้างานซึ่งเป็นต้นเหตุหลักของงบบานปลายและงานล่าช้า</div>
+      <div class="value"><b>ประสานงานกับผู้ติดตั้งเครื่องชาร์จให้</b>เราจัดทำแบบตำแหน่งฐาน ท่อ และช่องเปิดตามข้อกำหนดของผู้ขายเครื่องชาร์จที่ท่านเลือก ท่านไม่ต้องเป็นตัวกลางระหว่างผู้รับเหมาหลายราย</div>
+      <div class="value"><b>ราคาโปร่งใส ตรวจสอบได้</b>แจกแจงปริมาณงานและราคาต่อหน่วยทุกรายการ ท่านเห็นได้ชัดว่าเงินทุกบาทใช้ไปกับอะไร และนำไปเทียบราคาได้</div>
+    </div>
+    <div class="highlight">
+      <b>ผลลัพธ์ที่ท่านจะได้รับ:</b> สถานีที่พร้อมเปิดให้บริการภายในประมาณ <span data-f="totalDaysText"></span> นับจากวันลงนาม
+      (ไม่รวมระยะเวลาขออนุญาตและติดตั้งระบบไฟฟ้า/เครื่องชาร์จ) พร้อมแบบก่อสร้างฉบับสมบูรณ์ (As-built) สำหรับการบำรุงรักษาและขยายสถานีในอนาคต
+    </div>
+
+    <h2>2. ข้อมูลโครงการ</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="k">พื้นที่โครงการ</div><div class="v" data-f="areaText"></div></div>
+      <div class="kpi"><div class="k">พื้นที่เทคอนกรีต</div><div class="v" data-f="pavedText"></div></div>
+      <div class="kpi"><div class="k">ช่องจอดชาร์จ</div><div class="v" data-f="baysText"></div></div>
+      <div class="kpi"><div class="k">ฐานเครื่องชาร์จ</div><div class="v" data-f="pedestalsText"></div></div>
+    </div>
+
+    <h2>3. ขอบเขตงานออกแบบ (ราคาคงที่)</h2>
+    <ol>
+      <li>สำรวจพื้นที่และรวบรวมข้อมูลประกอบการออกแบบ (ใช้ผลรังวัดและผลเจาะสำรวจดินตามหมวดงานก่อสร้าง)</li>
+      <li>ออกแบบผังบริเวณ (Site Plan) การจัดช่องจอด ทางเข้า–ออก ทางวิ่ง และการระบายน้ำ</li>
+      <li>ออกแบบสถาปัตยกรรม: หลังคาคลุมช่องจอด ป้ายสถานี (Pylon) และภาพทัศนียภาพ (Perspective) สำหรับนำเสนอ</li>
+      <li>ออกแบบโครงสร้าง: พื้นคอนกรีต ฐานราก หลังคาโครงเหล็ก ฐานป้าย และฐานเครื่องชาร์จ</li>
+      <li>จัดทำ Shop Drawing สำหรับงานก่อสร้างทุกรายการ พร้อมแบบประสานตำแหน่งฐานและท่อร้อยสายกับผู้ติดตั้งเครื่องชาร์จ</li>
+      <li>ประมาณราคาและปริมาณงาน (BOQ) ฉบับก่อสร้าง</li>
+      <li>แบบก่อสร้างจริง (As-built Drawing) เมื่อส่งมอบงาน</li>
+    </ol>
+
+    <h2>4. รายละเอียดราคา</h2>
+    <div class="table-wrap">
+      <table class="boq">
+        <thead>
+          <tr>
+            <th>ลำดับ</th><th>รายการ</th><th class="num">จำนวน</th><th>หน่วย</th>
+            <th class="num">ราคา/หน่วย (บาท)</th><th class="num">รวม (บาท)</th>
+          </tr>
+        </thead>
+        <tbody id="boqBody"></tbody>
+        <tfoot id="boqFoot"></tfoot>
+      </table>
+    </div>
+    <div class="baht-text">(<span data-f="grandThai"></span>)</div>
+
+    <h2 class="page-break">5. รายการที่ไม่รวมในใบเสนอราคา</h2>
+    <div class="warnbox">รายการต่อไปนี้อยู่นอกขอบเขตงานของบริษัทฯ ท่านต้องจัดหาหรือว่าจ้างแยกต่างหาก บริษัทฯ ยินดีให้คำแนะนำและประสานงานโดยไม่มีค่าใช้จ่ายเพิ่มเติม</div>
+    <ul data-exclusions></ul>
+
+    <h2>6. ระยะเวลาดำเนินงาน</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ขั้นตอน</th><th>รายละเอียด</th><th class="num">ระยะเวลา</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>ออกแบบ ประสานงานผู้ขายเครื่องชาร์จ และจัดทำ Shop Drawing</td><td class="num" data-f="designDaysText"></td></tr>
+          <tr><td>2</td><td>ก่อสร้างงานโยธา หลังคา ป้าย และงานพื้นที่</td><td class="num" data-f="buildDaysText"></td></tr>
+          <tr><td>3</td><td>ตรวจรับงานและส่งมอบแบบ As-built</td><td class="num">7 วัน</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">ระยะเวลาก่อสร้างนับจากวันที่ได้รับใบอนุญาตก่อสร้าง (ถ้ามี) และส่งมอบพื้นที่ ไม่รวมช่วงหยุดงานเนื่องจากฝนตกหนักหรือเหตุสุดวิสัย</p>
+
+    <h2>7. เงื่อนไขการชำระเงิน</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>งวด</th><th>เงื่อนไข</th><th class="num">สัดส่วน</th><th class="num">จำนวนเงินรวม VAT (บาท)</th></tr></thead>
+        <tbody id="payBody"></tbody>
+      </table>
+    </div>
+
+    <h2>8. การรับประกันและเงื่อนไขอื่น</h2>
+    <ul>
+      <li>รับประกันงานก่อสร้าง <span data-f="warrantyMonths"></span> เดือน นับจากวันส่งมอบงาน ครอบคลุมความเสียหายที่เกิดจากฝีมือการทำงานและวัสดุที่บริษัทฯ จัดหา</li>
+      <li>รับประกันการรั่วซึมของหลังคาและการทรุดตัวผิดปกติของพื้นคอนกรีตตามระยะเวลาข้างต้น</li>
+      <li>งานเพิ่ม–ลดนอกเหนือจากใบเสนอราคานี้ คิดตามราคาต่อหน่วยในตารางข้อ 4 และต้องได้รับความเห็นชอบเป็นลายลักษณ์อักษรก่อนดำเนินการ</li>
+      <li>ลิขสิทธิ์แบบเป็นของบริษัทฯ ท่านมีสิทธิ์ใช้แบบสำหรับโครงการนี้ รวมถึงการบำรุงรักษาและต่อเติมในอนาคต</li>
+      <li>ใบเสนอราคานี้ยืนราคา <span data-f="qValid"></span> วัน นับจากวันที่ในใบเสนอราคา</li>
+    </ul>
+
+    <h2>9. ขั้นตอนถัดไป</h2>
+    <ol>
+      <li>ลงนามยืนยันในใบเสนอราคานี้ และชำระเงินงวดที่ 1</li>
+      <li>บริษัทฯ นัดสำรวจพื้นที่และประชุมเริ่มงานภายใน 7 วัน</li>
+      <li>ท่านแจ้งรุ่นและผู้ขายเครื่องชาร์จที่เลือก (หรือให้บริษัทฯ ช่วยแนะนำ) เพื่อเริ่มประสานแบบ</li>
+    </ol>
+
+    <div class="sign">
+      <div><div class="line"></div>ผู้เสนอราคา<br><span data-f="salesNameText"></span><br><span class="muted" data-f="coNameText"></span></div>
+      <div><div class="line"></div>ผู้อนุมัติสั่งจ้าง<br><span data-f="custContactText"></span><br><span class="muted">วันที่ ......../......../........</span></div>
+    </div>
+  </article>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORE_KEY = "kenpro-ev-quotation-v1";
+  var BAY_AREA = 3.0 * 6.0;   // m² per parking bay
+  var CANOPY_OVERHANG = 1.3;  // canopy area multiplier over bays
+
+  var TEXT_FIELDS = ["coName", "coNameEn", "coTax", "coPhone", "coEmail", "coLine", "coAddr",
+    "qNo", "qDate", "custName", "custContact", "custPhone", "salesName", "siteName"];
+  var NUM_FIELDS = ["qValid", "plotArea", "pavedPct", "fillDepth", "drainLen", "bays", "pedestals",
+    "sleeveLen", "designFee", "ohPct", "contPct", "vatPct", "rangePct", "buildDays", "designDays", "warrantyMonths"];
+
+  var EXCLUSIONS = [
+    "งานระบบไฟฟ้าทั้งหมด ได้แก่ การออกแบบระบบไฟฟ้า หม้อแปลง ตู้ MDB สายไฟ เบรกเกอร์ ระบบสายดิน และไฟส่องสว่าง",
+    "เครื่องชาร์จรถยนต์ไฟฟ้า การติดตั้ง ทดสอบ และระบบบริหารจัดการสถานี (CMS/OCPP) – ดำเนินการโดยผู้ขายเครื่องชาร์จ",
+    "ค่าธรรมเนียมและงานของการไฟฟ้าส่วนภูมิภาค (กฟภ.) การขอใช้ไฟฟ้า มิเตอร์ และหลักประกันการใช้ไฟฟ้า",
+    "การยื่นขออนุญาตก่อสร้างและค่าธรรมเนียมต่อหน่วยงานราชการ (บริษัทฯ จัดเตรียมแบบประกอบการยื่นให้ได้)",
+    "ระบบกล้องวงจรปิด (CCTV) และระบบอินเทอร์เน็ต",
+    "ค่ารังวัดโฉนดโดยกรมที่ดิน และค่าใช้จ่ายเกี่ยวกับกรรมสิทธิ์ที่ดิน"
+  ];
+
+  // Payment milestones: [label, share of design fee, share of construction]
+  var MILESTONES = [
+    ["ลงนามสั่งจ้าง (มัดจำค่าออกแบบ)", 0.5, 0],
+    ["ส่งมอบแบบและ Shop Drawing ฉบับสมบูรณ์", 0.5, 0],
+    ["เริ่มงานก่อสร้าง (เงินล่วงหน้า)", 0, 0.3],
+    ["งานถม พื้นคอนกรีต และรางระบายน้ำแล้วเสร็จ", 0, 0.3],
+    ["งานหลังคาและฐานเครื่องชาร์จแล้วเสร็จ", 0, 0.3],
+    ["ส่งมอบงานและแบบ As-built", 0, 0.1]
+  ];
+
+  var overrides = {};
+
+  function $(id) { return document.getElementById(id); }
+
+  function num(id) {
+    var v = parseFloat($(id).value);
+    return isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  function txt(id, placeholder) {
+    var v = $(id).value.trim();
+    return v || "[" + placeholder + "]";
+  }
+
+  function fmt(n, digits) {
+    return n.toLocaleString("th-TH", {
+      minimumFractionDigits: digits || 0,
+      maximumFractionDigits: digits || 0
+    });
+  }
+
+  function thaiLandUnits(m2) {
+    var sqWa = m2 / 4;
+    var rai = Math.floor(sqWa / 400);
+    var ngan = Math.floor((sqWa - rai * 400) / 100);
+    var wa = sqWa - rai * 400 - ngan * 100;
+    return rai + " ไร่ " + ngan + " งาน " + fmt(wa, 1) + " ตร.วา";
+  }
+
+  function thaiDate(iso) {
+    if (!iso) return "[วันที่]";
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d.getTime())) return "[วันที่]";
+    return d.toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" });
+  }
+
+  // Convert a number to Thai baht text, e.g. 1234.5 -> "หนึ่งพันสองร้อยสามสิบสี่บาทห้าสิบสตางค์".
+  function bahtText(amount) {
+    var DIGITS = ["", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"];
+    var PLACES = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน"];
+
+    // Read an integer below one million.
+    function readChunk(n, afterMillion) {
+      var s = String(n);
+      var out = "";
+      for (var i = 0; i < s.length; i++) {
+        var d = parseInt(s.charAt(i), 10);
+        var place = s.length - i - 1;
+        if (d === 0) continue;
+        if (place === 0 && d === 1 && (s.length > 1 || afterMillion)) out += "เอ็ด";
+        else if (place === 1 && d === 2) out += "ยี่";
+        else if (place === 1 && d === 1) out += "";
+        else out += DIGITS[d];
+        out += PLACES[place];
+      }
+      return out;
+    }
+
+    function readInt(n) {
+      if (n === 0) return "ศูนย์";
+      var out = "";
+      var millions = Math.floor(n / 1000000);
+      var rest = n % 1000000;
+      if (millions > 0) out += readInt(millions) + "ล้าน";
+      if (rest > 0) out += readChunk(rest, millions > 0);
+      return out;
+    }
+
+    var satangTotal = Math.round(Math.abs(amount) * 100);
+    var baht = Math.floor(satangTotal / 100);
+    var satang = satangTotal % 100;
+    var text = readInt(baht) + "บาท";
+    text += satang > 0 ? readInt(satang) + "สตางค์" : "ถ้วน";
+    return text;
+  }
+
+  function calc() {
+    var area = num("plotArea");
+    var paved = area * Math.min(num("pavedPct"), 100) / 100;
+    var bays = Math.round(num("bays"));
+    var pedestals = Math.round(num("pedestals"));
+    var canopyArea = $("canopy").checked ? bays * BAY_AREA * CANOPY_OVERHANG : 0;
+
+    var sections = [
+      { title: "งานออกแบบ", fixed: true, items: [
+        { key: "design", name: "ค่าออกแบบผังโครงการ สถาปัตยกรรม โครงสร้าง และ Shop Drawing (ตามขอบเขตข้อ 3)", qty: 1, unit: "งาน", price: num("designFee"), locked: true }
+      ]},
+      { title: "งานเตรียมพื้นที่", items: [
+        { key: "survey", name: "งานสำรวจ รังวัดระดับ และเจาะสำรวจดิน", qty: 1, unit: "งาน", price: 35000 },
+        { key: "clear", name: "งานถางหญ้า ขุดตอ ปรับพื้นที่", qty: area, unit: "ตร.ม.", price: 25 },
+        { key: "fill", name: "งานถมดินพร้อมบดอัด 95% Standard Proctor", qty: area * num("fillDepth"), unit: "ลบ.ม.", price: 450 }
+      ]},
+      { title: "งานโยธาและระบายน้ำ", items: [
+        { key: "pave", name: "พื้นคอนกรีตเสริมเหล็ก หนา 15 ซม. (รวมทรายรองพื้น)", qty: paved, unit: "ตร.ม.", price: 750 },
+        { key: "drain", name: "รางระบายน้ำ คสล. พร้อมฝาตะแกรงเหล็ก", qty: num("drainLen"), unit: "ม.", price: 1400 },
+        { key: "pedestal", name: "ฐานคอนกรีตรองรับเครื่องชาร์จ ตามแบบผู้ขายเครื่องชาร์จ (งานโยธาเท่านั้น)", qty: pedestals, unit: "ฐาน", price: 20000 },
+        { key: "sleeve", name: "ท่อร้อยสายเปล่า HDPE ฝังใต้พื้น พร้อมบ่อพัก สำหรับผู้ติดตั้งระบบไฟฟ้า (ไม่รวมสายไฟ)", qty: num("sleeveLen"), unit: "ม.", price: 650 }
+      ]},
+      { title: "งานหลังคาและป้าย", items: [
+        { key: "canopy", name: "หลังคาโครงเหล็กคลุมช่องจอด พร้อมฐานราก", qty: canopyArea, unit: "ตร.ม.", price: 3800 },
+        { key: "pylon", name: "ป้ายสถานี (Pylon Sign) งานโครงสร้างและแผ่นป้าย (ไม่รวมงานไฟฟ้า)", qty: 1, unit: "ป้าย", price: 95000 },
+        { key: "sign", name: "ป้ายคำแนะนำการใช้งานและป้ายเตือนความปลอดภัย", qty: pedestals, unit: "ชุด", price: 2500 }
+      ]},
+      { title: "งานจราจรและความปลอดภัย", items: [
+        { key: "marking", name: "ตีเส้นและทาสีเขียวช่องจอด EV", qty: bays, unit: "ช่อง", price: 4500 },
+        { key: "wheelstop", name: "แท่งกั้นล้อ (Wheel Stop)", qty: bays, unit: "ชุด", price: 1500 },
+        { key: "bollard", name: "เสากันชนเหล็กป้องกันเครื่องชาร์จ", qty: pedestals * 2, unit: "ต้น", price: 3500 },
+        { key: "fire", name: "ถังดับเพลิงชนิด ABC ขนาด 15 ปอนด์ พร้อมตู้", qty: Math.max(2, pedestals), unit: "ถัง", price: 3500 }
+      ]}
+    ];
+
+    var design = 0, build = 0;
+    sections.forEach(function (sec) {
+      sec.items = sec.items.filter(function (it) { return it.qty > 0; });
+      sec.subtotal = 0;
+      sec.items.forEach(function (it) {
+        it.unitPrice = (!it.locked && Object.prototype.hasOwnProperty.call(overrides, it.key)) ? overrides[it.key] : it.price;
+        it.amount = it.qty * it.unitPrice;
+        sec.subtotal += it.amount;
+      });
+      if (sec.fixed) design += sec.subtotal; else build += sec.subtotal;
+    });
+
+    var oh = build * num("ohPct") / 100;
+    var cont = build * num("contPct") / 100;
+    var buildBeforeVat = build + oh + cont;
+    var beforeVat = design + buildBeforeVat;
+    var vat = beforeVat * num("vatPct") / 100;
+
+    return {
+      sections: sections,
+      area: area, paved: paved, bays: bays, pedestals: pedestals,
+      design: design, build: build, oh: oh, cont: cont,
+      buildBeforeVat: buildBeforeVat, beforeVat: beforeVat, vat: vat, grand: beforeVat + vat
+    };
+  }
+
+  function td(text, cls) {
+    var cell = document.createElement("td");
+    if (cls) cell.className = cls;
+    cell.textContent = text;
+    return cell;
+  }
+
+  function renderLetterhead() {
+    var html = function (s) {
+      var d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    };
+    var contact = [
+      "โทร " + txt("coPhone", "เบอร์โทร"),
+      "อีเมล " + txt("coEmail", "อีเมล"),
+      txt("coLine", "LINE OA / เว็บไซต์")
+    ].join(" • ");
+    var markup =
+      '<div class="logo">วางโลโก้<br>บริษัท</div>' +
+      '<div class="co">' +
+        '<div class="name">' + html(txt("coName", "ชื่อบริษัท")) + '</div>' +
+        '<div class="en">' + html(txt("coNameEn", "Company Name")) + '</div>' +
+        '<div class="addr">' + html(txt("coAddr", "ที่อยู่บริษัท")) + '</div>' +
+        '<div class="addr">เลขประจำตัวผู้เสียภาษี ' + html(txt("coTax", "เลขประจำตัวผู้เสียภาษี")) + '</div>' +
+        '<div class="addr">' + html(contact) + '</div>' +
+      '</div>';
+    document.querySelectorAll("[data-letterhead]").forEach(function (el) { el.innerHTML = markup; });
+
+    var meta = [
+      ["เลขที่", txt("qNo", "เลขที่ใบเสนอราคา")],
+      ["วันที่", thaiDate($("qDate").value)],
+      ["ลูกค้า", txt("custName", "ชื่อลูกค้า / บริษัท")],
+      ["ผู้ติดต่อ", txt("custContact", "ผู้ติดต่อ") + " • " + txt("custPhone", "โทรศัพท์")],
+      ["โครงการ", "สถานีชาร์จรถยนต์ไฟฟ้า (EV Charging Station)"],
+      ["สถานที่", txt("siteName", "สถานที่ก่อสร้าง")]
+    ];
+    document.querySelectorAll("[data-meta]").forEach(function (el) {
+      el.innerHTML = "";
+      meta.forEach(function (m) {
+        var row = document.createElement("div");
+        var k = document.createElement("span");
+        k.className = "k";
+        k.textContent = m[0];
+        row.appendChild(k);
+        row.appendChild(document.createTextNode(m[1]));
+        el.appendChild(row);
+      });
+    });
+
+    document.querySelectorAll("[data-exclusions]").forEach(function (el) {
+      el.innerHTML = "";
+      EXCLUSIONS.forEach(function (x) {
+        var li = document.createElement("li");
+        li.textContent = x;
+        el.appendChild(li);
+      });
+    });
+  }
+
+  function renderBoq(r) {
+    var body = $("boqBody");
+    body.innerHTML = "";
+    var secNo = 0;
+    r.sections.forEach(function (sec) {
+      if (!sec.items.length) return;
+      secNo++;
+      var hr = document.createElement("tr");
+      hr.className = "section";
+      hr.appendChild(td(String(secNo)));
+      var title = td(sec.title + (sec.fixed ? " (ราคาคงที่)" : ""));
+      title.colSpan = 5;
+      hr.appendChild(title);
+      body.appendChild(hr);
+
+      sec.items.forEach(function (it, ii) {
+        var tr = document.createElement("tr");
+        tr.appendChild(td(secNo + "." + (ii + 1)));
+        tr.appendChild(td(it.name));
+        tr.appendChild(td(fmt(it.qty, Number.isInteger(it.qty) ? 0 : 2), "num"));
+        tr.appendChild(td(it.unit));
+        var pc = document.createElement("td");
+        pc.className = "num";
+        if (it.locked) {
+          pc.textContent = fmt(it.unitPrice, 2);
+        } else {
+          var inp = document.createElement("input");
+          inp.type = "number";
+          inp.min = "0";
+          inp.step = "any";
+          inp.className = "price";
+          inp.value = String(it.unitPrice);
+          inp.setAttribute("aria-label", "ราคาต่อหน่วย " + it.name);
+          inp.addEventListener("change", function () {
+            var v = parseFloat(inp.value);
+            if (isFinite(v) && v >= 0) overrides[it.key] = v; else delete overrides[it.key];
+            save();
+            render();
+          });
+          pc.appendChild(inp);
+        }
+        tr.appendChild(pc);
+        tr.appendChild(td(fmt(it.amount, 2), "num"));
+        body.appendChild(tr);
+      });
+
+      var st = document.createElement("tr");
+      st.className = "subtotal";
+      st.appendChild(td(""));
+      var l = td("รวมหมวด " + secNo);
+      l.colSpan = 4;
+      st.appendChild(l);
+      st.appendChild(td(fmt(sec.subtotal, 2), "num"));
+      body.appendChild(st);
+    });
+
+    var rows = [
+      ["ค่าออกแบบ (ราคาคงที่)", r.design],
+      ["ค่างานก่อสร้าง (Direct Cost)", r.build],
+      ["ค่าดำเนินการและกำไรงานก่อสร้าง " + num("ohPct") + "%", r.oh],
+      ["เผื่อเหลือเผื่อขาด " + num("contPct") + "%", r.cont],
+      ["รวมก่อนภาษีมูลค่าเพิ่ม", r.beforeVat],
+      ["ภาษีมูลค่าเพิ่ม " + num("vatPct") + "%", r.vat],
+      ["รวมทั้งสิ้น", r.grand]
+    ];
+    var foot = $("boqFoot");
+    foot.innerHTML = "";
+    rows.forEach(function (row, i) {
+      var tr = document.createElement("tr");
+      if (i === rows.length - 1) tr.className = "grand";
+      tr.appendChild(td(""));
+      var lab = td(row[0]);
+      lab.colSpan = 4;
+      tr.appendChild(lab);
+      tr.appendChild(td(fmt(row[1], 2), "num"));
+      foot.appendChild(tr);
+    });
+  }
+
+  function renderPayments(r) {
+    var vatMul = 1 + num("vatPct") / 100;
+    var body = $("payBody");
+    body.innerHTML = "";
+    MILESTONES.forEach(function (m, i) {
+      var amount = (r.design * m[1] + r.buildBeforeVat * m[2]) * vatMul;
+      var share = m[1] > 0 ? fmt(m[1] * 100) + "% ของค่าออกแบบ" : fmt(m[2] * 100) + "% ของค่าก่อสร้าง";
+      var tr = document.createElement("tr");
+      tr.appendChild(td(String(i + 1)));
+      tr.appendChild(td(m[0]));
+      tr.appendChild(td(share, "num"));
+      tr.appendChild(td(fmt(amount, 2), "num"));
+      body.appendChild(tr);
+    });
+  }
+
+  function render() {
+    $("plotThai").textContent = "≈ " + thaiLandUnits(num("plotArea"));
+    var r = calc();
+    var range = num("rangePct") / 100;
+    var designDays = Math.round(num("designDays"));
+    var buildDays = Math.round(num("buildDays"));
+
+    var fields = {
+      rangePct: fmt(num("rangePct")),
+      vatPct: fmt(num("vatPct")),
+      qValid: fmt(num("qValid")),
+      warrantyMonths: fmt(num("warrantyMonths")),
+      areaText: fmt(r.area) + " ตร.ม.",
+      pavedText: fmt(r.paved) + " ตร.ม.",
+      baysText: fmt(r.bays) + " ช่อง",
+      pedestalsText: fmt(r.pedestals) + " ฐาน",
+      designDaysText: fmt(designDays) + " วัน",
+      buildDaysText: fmt(buildDays) + " วัน",
+      totalDaysText: fmt(designDays + buildDays + 7) + " วัน",
+      designFeeFmt: fmt(r.design, 2),
+      buildBeforeVatFmt: fmt(r.buildBeforeVat, 2),
+      buildRangeText: "ช่วงประมาณ " + fmt(r.buildBeforeVat * (1 - range)) + " – " + fmt(r.buildBeforeVat * (1 + range)) + " บาท (ก่อน VAT)",
+      beforeVatFmt: fmt(r.beforeVat, 2),
+      vatFmt: fmt(r.vat, 2),
+      grandFmt: fmt(r.grand, 2),
+      grandThai: bahtText(r.grand),
+      salesNameText: txt("salesName", "ชื่อผู้เสนอราคา"),
+      custContactText: txt("custContact", "ผู้ติดต่อ"),
+      custNameText: txt("custName", "ชื่อลูกค้า / บริษัท"),
+      siteNameText: txt("siteName", "สถานที่ก่อสร้าง"),
+      coNameText: txt("coName", "ชื่อบริษัท")
+    };
+    document.querySelectorAll("[data-f]").forEach(function (el) {
+      var k = el.getAttribute("data-f");
+      if (Object.prototype.hasOwnProperty.call(fields, k)) el.textContent = fields[k];
+    });
+
+    renderLetterhead();
+    renderBoq(r);
+    renderPayments(r);
+  }
+
+  function save() {
+    try {
+      var data = { overrides: overrides, fields: {} };
+      TEXT_FIELDS.concat(NUM_FIELDS).forEach(function (id) { data.fields[id] = $(id).value; });
+      data.fields.canopy = $("canopy").checked;
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    } catch (e) { /* storage unavailable: ignore */ }
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (data.overrides && typeof data.overrides === "object") overrides = data.overrides;
+      var f = data.fields || {};
+      TEXT_FIELDS.concat(NUM_FIELDS).forEach(function (id) {
+        if (typeof f[id] === "string") $(id).value = f[id];
+      });
+      if (typeof f.canopy === "boolean") $("canopy").checked = f.canopy;
+    } catch (e) { /* corrupt or unavailable storage: ignore */ }
+  }
+
+  function showView(view) {
+    var full = view === "full";
+    $("docBudget").hidden = full;
+    $("docFull").hidden = !full;
+    $("tabBudget").setAttribute("aria-selected", String(!full));
+    $("tabFull").setAttribute("aria-selected", String(full));
+    if (location.hash !== "#" + view) history.replaceState(null, "", "#" + view);
+  }
+
+  // Default date = today (local time).
+  var now = new Date();
+  $("qDate").value = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+
+  load();
+  TEXT_FIELDS.concat(NUM_FIELDS).forEach(function (id) {
+    $(id).addEventListener("input", function () { save(); render(); });
+  });
+  $("canopy").addEventListener("change", function () { save(); render(); });
+  $("tabBudget").addEventListener("click", function () { showView("budget"); });
+  $("tabFull").addEventListener("click", function () { showView("full"); });
+  $("btnPrint").addEventListener("click", function () { window.print(); });
+  $("btnResetPrice").addEventListener("click", function () { overrides = {}; save(); render(); });
+  $("btnClear").addEventListener("click", function () {
+    try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ }
+    location.reload();
+  });
+  window.addEventListener("hashchange", function () { showView(location.hash === "#full" ? "full" : "budget"); });
+
+  render();
+  showView(location.hash === "#full" ? "full" : "budget");
+})();
+</script>
+</body>
+</html>
